@@ -1,0 +1,36 @@
+name: Atualizar trends GTA 6
+
+on:
+  schedule:
+    # Toda segunda-feira às 09:00 (horário de Brasília = 12:00 UTC)
+    - cron: "0 12 * * 1"
+  workflow_dispatch: {}   # permite clicar em "Run workflow" manualmente
+
+permissions:
+  contents: write
+
+jobs:
+  update-trends:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install requests
+
+      - name: Rodar script de atualização
+        env:
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+        run: python scripts/update_trends.py
+
+      - name: Publicar mudanças no repositório
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Atualiza trends GTA 6 (automático)"
+          file_pattern: "data/trends.json"
